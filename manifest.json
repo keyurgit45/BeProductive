@@ -1,0 +1,24 @@
+{
+    "manifest_version": 3,
+    "name": "Focus Extension",
+    "version": "1.0",
+    "description": "A Chrome extension to help you focus and get AI-powered responses",
+    "permissions": [
+        "storage",
+        "activeTab"
+    ],
+    "host_permissions": [
+        "https://openrouter.ai/*"
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "options_ui": {
+        "page": "settings.html",
+        "open_in_tab": true
+    },
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    }
+}
