@@ -2,8 +2,9 @@
 <html>
 
 <head>
-    <title>Focus Extension Settings</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Settings</title>
+    <link rel="stylesheet" href="../styles/shared.css">
+    <link rel="stylesheet" href="../styles/settings.css">
     <style>
         .settings-container {
             max-width: 500px;
@@ -51,15 +52,31 @@
 
 <body>
     <div class="settings-container">
-        <h2>Focus Extension Settings</h2>
+        <h2>Settings</h2>
+        <div class="toggle-container">
+            <span class="toggle-label">Extension:</span>
+            <label class="switch">
+                <input type="checkbox" id="enableExtension">
+                <span class="slider"></span>
+            </label>
+            <span class="toggle-status" id="toggleStatus">Disabled</span>
+        </div>
         <div class="form-group">
             <label for="apiKey">OpenRouter API Key:</label>
             <input type="password" id="apiKey" placeholder="Enter your OpenRouter API key">
         </div>
+        <div class="form-group">
+            <label for="allowedTopics">Allowed Topics (one per line):</label>
+            <textarea id="allowedTopics" rows="4" placeholder="Enter allowed topics, one per line"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="blockedTopics">Blocked Topics (one per line):</label>
+            <textarea id="blockedTopics" rows="4" placeholder="Enter blocked topics, one per line"></textarea>
+        </div>
         <button id="saveSettings">Save Settings</button>
         <div id="status" class="status"></div>
     </div>
-    <script src="settings.js"></script>
+    <script type="module" src="settings.js"></script>
 </body>
 
 </html>
