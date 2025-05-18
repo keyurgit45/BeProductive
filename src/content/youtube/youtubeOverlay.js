@@ -14,9 +14,7 @@ function getRandomGradient() {
 async function shouldBlockVideo() {
     // Get title from window title (removes " - YouTube" suffix)
     const videoTitle = window.__tabTitle;
-
-    // Try multiple selectors for channel name
-    const channelName = document.querySelector('#owner-name a, #channel-name a, #channel-header a')?.textContent?.trim() || '';
+    const channelName = window.__channelName;
 
     console.log('Video info:', { videoTitle, channelName });
 

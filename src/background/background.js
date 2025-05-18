@@ -83,12 +83,13 @@ async function sendPromptToOpenRouter(prompt) {
         })
     });
 
-    if (!response.ok) {
+    if (response.status !== 200) {
         const error = await response.json();
         throw new Error(`API request failed: ${response.status} Response: ${JSON.stringify(error)}`);
     }
 
     const data = await response.json();
+    console.log('API response:', data);
     return data.choices[0].message.content;
 }
 
@@ -144,8 +145,8 @@ async function removeOverlay(tabId) {
 
 // Function to get video title with polling and fallbacks
 async function getVideoTitle(tabId) {
-    const MAX_ATTEMPTS = 10; // Maximum number of polling attempts
-    const POLL_INTERVAL = 500; // Poll every 500ms
+    const MAX_ATTEMPTS = 7; // Maximum number of polling attempts
+    const POLL_INTERVAL = 800; // Poll every 500ms
     let attempts = 0;
     let lastTitle = '';
 
@@ -227,20 +228,49 @@ async function injectOverlay(tab) {
     processingUrls.add(tab.url);
     console.log('Processing URL:', tab.url);
 
+    // 1 second delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     try {
         // Get video title
         const title = await getVideoTitle(tab.id);
+
+        // Get channel name using executeScript
+        const channelResult = await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: () => {
+                const selectors = [
+                    'ytd-watch-metadata #channel-name a',
+                    'ytd-video-owner-renderer #channel-name a',
+                    '#owner-name a',
+                    '#channel-name a',
+                    '#channel-header a'
+                ];
+
+                for (const selector of selectors) {
+                    const element = document.querySelector(selector);
+                    if (element?.textContent?.trim()) {
+                        return element.textContent.trim();
+                    }
+                }
+                return '';
+            }
+        });
+        const channelName = channelResult[0].result;
+
         console.log('Video title:', title);
+        console.log('Channel name:', channelName);
 
         // Inject constants and title
         await chrome.scripting.executeScript({
             target: { tabId: tab.id },
-            func: (quotes, gradients, videoTitle) => {
+            func: (quotes, gradients, videoTitle, channelName) => {
                 window.__MOTIVATIONAL_QUOTES = quotes;
                 window.__DARK_GRADIENTS = gradients;
                 window.__tabTitle = videoTitle;
+                window.__channelName = channelName;
             },
-            args: [MOTIVATIONAL_QUOTES, DARK_GRADIENTS, title]
+            args: [MOTIVATIONAL_QUOTES, DARK_GRADIENTS, title, channelName]
         });
 
         // Inject main script
@@ -316,4 +346,5 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
             removeOverlay(tab.id);
         }
     });
-}); 
+});
+
